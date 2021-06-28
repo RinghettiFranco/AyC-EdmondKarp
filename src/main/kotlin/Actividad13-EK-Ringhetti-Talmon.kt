@@ -1,3 +1,4 @@
+import java.lang.Integer.min
 import java.util.*
 
 fun main(args: Array<String>) {
@@ -8,6 +9,7 @@ fun main(args: Array<String>) {
     val t = scanner.nextInt()
     val ek: EdmondKarp = EdmondKarp(n,m,s,t)
     ek.inicializarGrafo()
+    ek.calcularFlujoMaximo()
 }
 
 class EdmondKarp(
@@ -23,7 +25,7 @@ class EdmondKarp(
         var flujo: Int = 0,
         val capacidad: Int
     ){
-        fun esResidual(): Boolean = capacidad == 0
+        fun esResidual(): Boolean = capacidad == 0 // No lo necesitamos creo
 
         fun capacidadDisponible(): Int = capacidad - flujo
 
@@ -70,7 +72,45 @@ class EdmondKarp(
 
     fun desmarcarNodos() = token++
 
-    fun calcularFlujoMaximo(): Int
+    fun calcularFlujoMaximo(): Int {
+        var flujo = 0
+        var flujoMaximo = 0
+        do {
+            desmarcarNodos()
+            flujo = BFSEdmondKarp()
+            flujoMaximo += flujo
+        } while (flujo != 0)
+        return flujoMaximo
+    }
 
-    fun BFSEdmondKarp(): Int
+    fun BFSEdmondKarp(): Int {
+
+        var cola: Queue<Int> = ArrayDeque(n)
+        visitar (s)
+        cola.add(s)
+        val previos: Array<Arco> = arrayOf() //  Que va a aca
+        while (!cola.isEmpty()) {
+            var nodo: Int = cola.poll()
+            if (nodo == t) break
+
+            for (arco in grafo[nodo]) {
+                var cap: Int = arco.capacidadDisponible()
+                if (cap > 0 && !visitado(arco.d)) {
+                    visitar(arco.d)
+                    previos[arco.d] = arco
+                    cola.offer(arco.d)
+                }
+            }
+        }
+        if (previos[t].equals(null)) return 0
+        var toRet : Int = Int.MAX_VALUE
+        var arco: Arco = previos[t]
+        while (arco!=null) {
+            toRet = min (toRet, arco.capacidadDisponible())
+            arco.aumentar(toRet)
+            arco = previos[arco.o]
+        }
+        return toRet
+    }
 }
+
