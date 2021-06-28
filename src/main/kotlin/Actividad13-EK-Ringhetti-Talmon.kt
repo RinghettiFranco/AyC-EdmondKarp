@@ -70,7 +70,7 @@ class EdmondKarp(
 
     fun desmarcarNodos() = token++
 
-    fun calcularFlujoMaximo():Int
-    
+    fun calcularFlujoMaximo(): Int
+
     fun BFSEdmondKarp(): Int
 }
