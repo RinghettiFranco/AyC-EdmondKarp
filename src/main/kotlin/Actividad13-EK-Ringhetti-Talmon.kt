@@ -1,15 +1,15 @@
 import java.lang.Integer.min
 import java.util.*
 
-fun main(args: Array<String>) {
+fun main() {
     val scanner = Scanner(System.`in`)
     val n = scanner.nextInt()
     val m = scanner.nextInt()
     val s = scanner.nextInt()
     val t = scanner.nextInt()
-    val ek: EdmondKarp = EdmondKarp(n,m,s,t)
+    val ek = EdmondKarp(n,m,s,t)
     ek.inicializarGrafo()
-    ek.calcularFlujoMaximo()
+    print(ek.calcularFlujoMaximo())
 }
 
 class EdmondKarp(
@@ -25,23 +25,21 @@ class EdmondKarp(
         var flujo: Int = 0,
         val capacidad: Int
     ){
-        fun esResidual(): Boolean = capacidad == 0 // No lo necesitamos creo
-
         fun capacidadDisponible(): Int = capacidad - flujo
 
         fun aumentar(aumento: Int) {
-            flujo = flujo + aumento
+            flujo += aumento
             residual?.let{
-                it.flujo = it.flujo - aumento
+                it.flujo -= aumento
             }
         }
     }
 
     private val scanner = Scanner(System.`in`)
     private var token: Int = 1
-    private val visitados: Array<Int> = arrayOf(n+1)
+    private val visitados = IntArray(n)
 
-    private val grafo: Array<MutableList<Arco>> = arrayOf()
+    private val grafo: Array<MutableList<Arco>?> = arrayOfNulls<MutableList<Arco>>(n+1)
 
     fun inicializarGrafo() {
         for(i in (1..n)){
@@ -51,17 +49,17 @@ class EdmondKarp(
             val u = scanner.nextInt()
             val v = scanner.nextInt()
             val c = scanner.nextInt()
-            añadirArco(u,v,c)
+            anadirArco(u,v,c)
         }
     }
 
-    fun añadirArco(o:Int, d:Int, c:Int) {
+    fun anadirArco(o:Int, d:Int, c:Int) {
         val arco = Arco(o,d,capacidad = c)
         val residual = Arco(d,o,capacidad = 0)
         arco.residual = residual
         residual.residual = arco
-        grafo[o].add(arco)
-        grafo[d].add(residual)
+        grafo[o]?.add(arco)
+        grafo[d]?.add(residual)
     }
 
     fun visitar(n:Int) {
@@ -84,16 +82,15 @@ class EdmondKarp(
     }
 
     fun BFSEdmondKarp(): Int {
-
-        var cola: Queue<Int> = ArrayDeque(n)
+        val cola: Queue<Int> = ArrayDeque(n)
         visitar (s)
         cola.add(s)
-        val previos: Array<Arco> = arrayOf() //  Que va a aca
+        val previos: Array<Arco> = arrayOf()
         while (!cola.isEmpty()) {
             var nodo: Int = cola.poll()
             if (nodo == t) break
 
-            for (arco in grafo[nodo]) {
+            for (arco in grafo[nodo]!!) {
                 var cap: Int = arco.capacidadDisponible()
                 if (cap > 0 && !visitado(arco.d)) {
                     visitar(arco.d)
