@@ -52,17 +52,28 @@ public class Actividad13 {
         }
 
         public int calcularFlujoMaximo(){
-            int flujo;
+            Arco[] previos;
+            int cuelloDeBotella;
             int flujoMaximo = 0;
             do {
                 desVisitarTodo();
-                flujo = BFSEdmondKarp();
-                flujoMaximo += flujo;
-            } while(flujo != 0);
+
+                previos = BFSEdmondKarp();
+
+                if(previos[t]!=null){
+                    cuelloDeBotella = Integer.MAX_VALUE;
+                    for (Arco arco = previos[t]; arco != null; arco = previos[arco.origen])
+                        cuelloDeBotella = min(cuelloDeBotella, arco.capacidadRestante());
+
+                    for (Arco arco = previos[t]; arco != null; arco = previos[arco.origen]) arco.aumentar(cuelloDeBotella);
+
+                    flujoMaximo += cuelloDeBotella;
+                }
+            } while(previos[t]!=null);
             return flujoMaximo;
         }
 
-        private int BFSEdmondKarp(){
+        private Arco[] BFSEdmondKarp(){
             Queue<Integer> cola = new ArrayDeque<>(n);
             Arco[] previos = new Arco[n+1];
             int nodoActual;
@@ -75,7 +86,6 @@ public class Actividad13 {
             while(!cola.isEmpty()){
                 nodoActual = cola.poll();
                 if(nodoActual==t) break;
-
                 for(Arco arco: grafo[nodoActual]){
                     capacidad = arco.capacidadRestante();
                     if(capacidad>0 && !visitado(arco.destino)){
@@ -85,16 +95,7 @@ public class Actividad13 {
                     }
                 }
             }
-
-            if(previos[t]==null) return 0;
-
-            minimoPosible = Integer.MAX_VALUE;
-            for (Arco arco = previos[t]; arco != null; arco = previos[arco.origen])
-                minimoPosible = min(minimoPosible, arco.capacidadRestante());
-
-            for (Arco arco = previos[t]; arco != null; arco = previos[arco.origen]) arco.aumentar(minimoPosible);
-
-            return minimoPosible;
+            return previos;
         }
     }
 
